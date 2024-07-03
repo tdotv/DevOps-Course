@@ -1,0 +1,18 @@
+#docker-compose.yml
+services:
+  yt_postgres:
+    image: postgres:15
+    container_name: yt_postgres
+    env_file:
+      - $env
+  project:
+    image: yt_django:test
+    build: 
+      context: ../../.				# Выходу в корень докера, а потом в корень проекта. В корне проекта видим Dockerfile
+    container_name: yt_django
+    env_file:
+      - $env
+    depends_on:
+      - yt_postgres
+    command: >
+      bash -c "sleep 10 && python manage.py test"	# Ждем 10 секунд пока Бд инициализируется и запускаем приложение

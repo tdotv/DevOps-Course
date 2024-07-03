@@ -1,0 +1,61 @@
+# docker run
+# --name app
+# -p 80:80
+# --net appnet
+# php:apache
+
+# ------------
+
+# docker run
+# --name app-postgres
+# -e 'POSTGRES_PASSWORD=mypass'
+# --net appnet
+# postgres
+
+# ------------
+
+# docker run
+# --name app-redis
+# --net appnet
+# redis
+
+version: "3.5"
+services:
+  php-app:
+    image: php:apache
+    container_name: app
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    depends_on:						# Запускается после запуска других контейнеров
+      - app-db
+      - app-redis
+    networks:
+      - internet
+      - localnet
+  
+  app-db:
+    image: postgres
+    container_name: app-postgres
+    restart: unless_stopped
+    environment:
+      - "POSTGRES_PASSWORD=mypass"
+    networks:
+      - localnet
+  
+  redis:
+    image: redis
+    container_name: app-redis
+    restart: unless-stopped
+    networks:
+      - localnet
+
+networks:
+  internet:
+    name: internet
+    driver: bridge
+  localnet:
+    name: localnet
+    driver: bridge
+    
+docker compose logs -f
